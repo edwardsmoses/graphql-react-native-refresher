@@ -5,13 +5,18 @@ import { ApolloClient, InMemoryCache, ApolloProvider, useQuery } from '@apollo/c
 import { gql } from "@apollo/client";
 
 
-
-
 const CONTINENT_QUERY = gql`
   query ContinentQuery {
     continents {
       code
       name
+    }
+    countries {
+      code
+      name
+      phone
+      currency
+      emoji
     }
   }
 `;
@@ -21,11 +26,11 @@ const Home = () => {
   const { data, loading } = useQuery(CONTINENT_QUERY); //execute query
 
   const ContinentItem = ({ continent }) => {
-    const { name, code } = continent; //get the name of continent
+    const { name, code, emoji,currency } = continent; //get the name of continent
 
     return (
       <Pressable>
-        <Text>{name}</Text>
+        <Text>{name} {emoji} {currency}</Text>
       </Pressable>
     );
   };
@@ -34,11 +39,18 @@ const Home = () => {
     return <Text>Fetching data...</Text>
   }
   return (
+    <>
     <FlatList
       data={data.continents}
       renderItem={({ item }) => <ContinentItem continent={item} />}
       keyExtractor={(item, index) => index}
     />
+     <FlatList
+      data={data.countries}
+      renderItem={({ item }) => <ContinentItem continent={item} />}
+      keyExtractor={(item, index) => index}
+    />
+    </>
   )
 }
 
