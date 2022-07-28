@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable } from 'react-native';
+import { StyleSheet, Text, View, Pressable, FlatList } from 'react-native';
 import { ApolloClient, InMemoryCache, ApolloProvider, useQuery } from '@apollo/client';
 
 import { gql } from "@apollo/client";
@@ -16,14 +16,8 @@ const CONTINENT_QUERY = gql`
   }
 `;
 
+const Home = () => {
 
-export default function App() {
-
-  const client = new ApolloClient({
-    uri: 'https://countries.trevorblades.com/graphql',
-    cache: new InMemoryCache()
-  });
-  
   const { data, loading } = useQuery(CONTINENT_QUERY); //execute query
 
   const ContinentItem = ({ continent }) => {
@@ -31,25 +25,34 @@ export default function App() {
 
     return (
       <Pressable>
-        <Text>{name}</Text> //display name of continent
+        <Text>{name}</Text>
       </Pressable>
     );
   };
 
-  console.log(data);
-
   if (loading) {
-    return <Text>Fetching data...</Text> //while loading return this
+    return <Text>Fetching data...</Text>
   }
+  return (
+    <FlatList
+      data={data.continents}
+      renderItem={({ item }) => <ContinentItem continent={item} />}
+      keyExtractor={(item, index) => index}
+    />
+  )
+}
+
+export default function App() {
+
+  const client = new ApolloClient({
+    uri: 'https://countries.trevorblades.com/graphql',
+    cache: new InMemoryCache()
+  });
 
   return (
     <ApolloProvider client={client}>
       <View style={styles.container}>
-        <FlatList
-          data={data.continents}
-          renderItem={({ item }) => <ContinentItem continent={item} />}
-          keyExtractor={(item, index) => index}
-        />
+        <Home />
       </View>
     </ApolloProvider>
   );
