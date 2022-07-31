@@ -26,7 +26,13 @@ mutation CreatePost($body: String!) {
 }
 `
 
-const POSTS_DELETE_MUTATION =  gql`
+const POSTS_UPDATE_MUTATION = gql`
+mutation UpdatePost($body: String!, $id: String!) {
+  updatePost(_id: $id, body: $body)
+}
+`
+
+const POSTS_DELETE_MUTATION = gql`
 mutation DeletePost($postId: String!) {
   deletePost(_id: $postId) {
     _id
@@ -34,7 +40,7 @@ mutation DeletePost($postId: String!) {
 }
 `;
 
-const Delete = ({id}) => {
+const Delete = ({ id }) => {
 
   const [deletePost, { loading }] = useMutation(POSTS_DELETE_MUTATION, {
     refetchQueries: [
@@ -56,6 +62,44 @@ const Delete = ({id}) => {
           })
         }}>
         <Text>{loading ? "Deleting" : "Delete"}</Text>
+      </TouchableOpacity>
+    </>
+  )
+}
+
+const Update = ({ id, body }) => {
+  const [isUpdate, setIsUpdate] = useState(false);
+  const [postBody, setPostBody] = useState(body);
+
+
+  const [updatePost, { loading }] = useMutation(POSTS_UPDATE_MUTATION, {
+    refetchQueries: [
+      { query: POSTS_QUERY },
+      'PostsQuery'
+    ],
+  });
+
+  return (
+    <>
+      {isUpdate ? <TextInput onChangeText={(text) => setPostBody(text)} value={postBody} style={{ borderColor: "black", borderWidth: 1, }} /> : <Text>{body}</Text>}
+      <TouchableOpacity
+        disabled={loading}
+        style={{ marginHorizontal: 10, }}
+        onPress={() => {
+          if (!isUpdate) {
+            setIsUpdate(true);
+            return;
+          }
+          updatePost({
+            variables: {
+              body: postBody,
+              id: id,
+            }
+          }).then(() => {
+            setIsUpdate(false);
+          })
+        }}>
+        <Text>{loading ? "Updating" : "Update"}</Text>
       </TouchableOpacity>
     </>
   )
@@ -100,7 +144,7 @@ const Home = () => {
 
     return (
       <Pressable style={{ flexDirection: 'row' }}>
-        <Text>{body}</Text>
+        <Update id={_id} body={body} />
         <Delete id={_id} />
       </Pressable>
     );
