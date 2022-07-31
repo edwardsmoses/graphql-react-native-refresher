@@ -1,8 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, Pressable, FlatList, TextInput, TouchableOpacity } from 'react-native';
-import { ApolloClient, InMemoryCache, ApolloProvider, useQuery } from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloProvider, useQuery, useMutation, gql } from '@apollo/client';
 
-import { gql } from "@apollo/client";
 import { useState } from 'react';
 
 
@@ -17,15 +16,36 @@ const POSTS_QUERY = gql`
 `;
 
 
+const POSTS_ADD_MUTATION = gql`
+mutation CreatePost($body: String!) {
+  createPost(post: {body: $body}){
+    _id,
+    body, 
+    createdAt,
+  }
+}
+`
+
+
 const Add = () => {
   const [postBody, setPostBody] = useState("");
+  const [addPost, { data, loading, error }] = useMutation(POSTS_ADD_MUTATION);
+
   return (
     <>
-      <TextInput onChangeText={(text) => setPostBody(text)} value={postBody} style={{borderColor: "black", borderWidth: 1,}} />
-      <TouchableOpacity onPress={() => {
-        console.log(postBody);
-      }}>
-        <Text>Add</Text>
+      <TextInput onChangeText={(text) => setPostBody(text)} value={postBody} style={{ borderColor: "black", borderWidth: 1, }} />
+      <TouchableOpacity
+        disabled={loading}
+        onPress={() => {
+          addPost({
+            variables: {
+              body: postBody
+            }
+          }).then(() => {
+            setPostBody("");
+          })
+        }}>
+        <Text>{loading ? "Adding" : "Add"}</Text>
       </TouchableOpacity>
     </>
   )
