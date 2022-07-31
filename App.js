@@ -29,7 +29,12 @@ mutation CreatePost($body: String!) {
 
 const Add = () => {
   const [postBody, setPostBody] = useState("");
-  const [addPost, { data, loading, error }] = useMutation(POSTS_ADD_MUTATION);
+  const [addPost, { data, loading, error }] = useMutation(POSTS_ADD_MUTATION, {
+    refetchQueries: [
+      { query: POSTS_QUERY },
+      'PostsQuery'
+    ],
+  });
 
   return (
     <>
