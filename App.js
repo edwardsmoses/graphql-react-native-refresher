@@ -5,32 +5,26 @@ import { ApolloClient, InMemoryCache, ApolloProvider, useQuery } from '@apollo/c
 import { gql } from "@apollo/client";
 
 
-const CONTINENT_QUERY = gql`
-  query ContinentQuery {
-    continents {
-      code
-      name
-    }
-    countries {
-      code
-      name
-      phone
-      currency
-      emoji
+const POSTS_QUERY = gql`
+  query PostsQuery {
+    posts {
+      _id,
+      body,
+      createdAt,
     }
   }
 `;
 
 const Home = () => {
 
-  const { data, loading } = useQuery(CONTINENT_QUERY); //execute query
+  const { data, loading } = useQuery(POSTS_QUERY); //execute query
 
-  const ContinentItem = ({ continent }) => {
-    const { name, code, emoji,currency } = continent; //get the name of continent
+  const ContinentItem = ({ post }) => {
+    const { body } = post; //get the name of continent
 
     return (
       <Pressable>
-        <Text>{name} {emoji} {currency}</Text>
+        <Text>{body}</Text>
       </Pressable>
     );
   };
@@ -40,16 +34,11 @@ const Home = () => {
   }
   return (
     <>
-    <FlatList
-      data={data.continents}
-      renderItem={({ item }) => <ContinentItem continent={item} />}
-      keyExtractor={(item, index) => index}
-    />
-     <FlatList
-      data={data.countries}
-      renderItem={({ item }) => <ContinentItem continent={item} />}
-      keyExtractor={(item, index) => index}
-    />
+      <FlatList
+        data={data.posts}
+        renderItem={({ item }) => <ContinentItem post={item} />}
+        keyExtractor={(item, index) => index}
+      />
     </>
   )
 }
@@ -57,7 +46,7 @@ const Home = () => {
 export default function App() {
 
   const client = new ApolloClient({
-    uri: 'https://countries.trevorblades.com/graphql',
+    uri: 'http://localhost:4000/graphql',
     cache: new InMemoryCache()
   });
 
