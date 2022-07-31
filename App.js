@@ -26,10 +26,45 @@ mutation CreatePost($body: String!) {
 }
 `
 
+const POSTS_DELETE_MUTATION =  gql`
+mutation DeletePost($postId: String!) {
+  deletePost(_id: $postId) {
+    _id
+  }
+}
+`;
+
+const Delete = ({id}) => {
+
+  const [deletePost, { loading }] = useMutation(POSTS_DELETE_MUTATION, {
+    refetchQueries: [
+      { query: POSTS_QUERY },
+      'PostsQuery'
+    ],
+  });
+
+  return (
+    <>
+      <TouchableOpacity
+        style={{ marginHorizontal: 10, }}
+        disabled={loading}
+        onPress={() => {
+          deletePost({
+            variables: {
+              postId: id
+            }
+          })
+        }}>
+        <Text>{loading ? "Deleting" : "Delete"}</Text>
+      </TouchableOpacity>
+    </>
+  )
+}
+
 
 const Add = () => {
   const [postBody, setPostBody] = useState("");
-  const [addPost, { data, loading, error }] = useMutation(POSTS_ADD_MUTATION, {
+  const [addPost, { loading }] = useMutation(POSTS_ADD_MUTATION, {
     refetchQueries: [
       { query: POSTS_QUERY },
       'PostsQuery'
@@ -61,11 +96,12 @@ const Home = () => {
   const { data, loading } = useQuery(POSTS_QUERY); //execute query
 
   const ContinentItem = ({ post }) => {
-    const { body } = post; //get the name of continent
+    const { _id, body } = post; //get the name of continent
 
     return (
-      <Pressable>
+      <Pressable style={{ flexDirection: 'row' }}>
         <Text>{body}</Text>
+        <Delete id={_id} />
       </Pressable>
     );
   };
