@@ -1,8 +1,9 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Pressable, FlatList, TextInput, TouchableOpacity } from 'react-native';
 import { ApolloClient, InMemoryCache, ApolloProvider, useQuery } from '@apollo/client';
 
 import { gql } from "@apollo/client";
+import { useState } from 'react';
 
 
 const POSTS_QUERY = gql`
@@ -14,6 +15,21 @@ const POSTS_QUERY = gql`
     }
   }
 `;
+
+
+const Add = () => {
+  const [postBody, setPostBody] = useState("");
+  return (
+    <>
+      <TextInput onChangeText={(text) => setPostBody(text)} value={postBody} style={{borderColor: "black", borderWidth: 1,}} />
+      <TouchableOpacity onPress={() => {
+        console.log(postBody);
+      }}>
+        <Text>Add</Text>
+      </TouchableOpacity>
+    </>
+  )
+}
 
 const Home = () => {
 
@@ -53,6 +69,7 @@ export default function App() {
   return (
     <ApolloProvider client={client}>
       <View style={styles.container}>
+        <Add />
         <Home />
       </View>
     </ApolloProvider>
